@@ -66,16 +66,36 @@ public class MainActivity extends AppCompatActivity {
     private void performConversion() {
         String fromUnit = fromUnitSpinner.getSelectedItem().toString();
         String toUnit = toUnitSpinner.getSelectedItem().toString();
-        String input = inputValue.getText().toString();
+        String input = inputValue.getText().toString().trim();
 
+        // 1. Check for empty input
         if (input.isEmpty()) {
             Toast.makeText(this, "Please enter a value", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        double value = Double.parseDouble(input);
-        double result = convertUnits(value, fromUnit, toUnit);
-        resultView.setText(String.format("%.2f %s", result, toUnit));
+        // 2. Check for non-numeric input
+        double value;
+        try {
+            value = Double.parseDouble(input);
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Invalid number format", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 3. Check if source and destination units are the same
+        if (fromUnit.equals(toUnit)) {
+            Toast.makeText(this, "Source and destination units must be different", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 4. Try conversion and display result
+        try {
+            double result = convertUnits(value, fromUnit, toUnit);
+            resultView.setText(String.format("%.2f %s", result, toUnit));
+        } catch (Exception e) {
+            Toast.makeText(this, "Conversion error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private double convertUnits(double value, String fromUnit, String toUnit) {
